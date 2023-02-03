@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace DBRandomizer
@@ -71,17 +72,12 @@ namespace DBRandomizer
 
             if (!DataBaseClient.DBInfo.TryGetValue(TableName, out tableInfo)) return false;
 
-            foreach (var name in tableInfo.Select(c => c.Name))
-                if (!dataSet.ContainsKey(name)) return false;
+            foreach (var name in DataSet.Select(c => c.Key))
+                if (!tableInfo.Select(t => t.Name).Contains(name)) return false;
 
-            Dictionary<string, int> maxIndexes = DataSet.Select(c => new KeyValuePair<string, int>(c.Key, c.Value.Count - 1)).ToDictionary(c => c.Key, c => c.Value);
-
-            Dictionary<string, int> indexes = DataSet.Select(c => new KeyValuePair<string, int>(c.Key, 0)).ToDictionary(c => c.Key, c => c.Value);
-
-
-            while (true)
+            foreach (var item in DataSet.Select(c => c.Value).CartesianProduct())
             {
-                string query = $"INSERT INTO {TableName}({string.Join(", ", DataSet.Select(c => c.Key))}) VALUES('{string.Join("', '", DataSet.Select(t => t.Value[indexes[t.Key]]))}')";
+                string query = $"INSERT INTO {TableName}({string.Join(", ", DataSet.Select(c => c.Key))}) VALUES('{string.Join("', '", item)}')";
 
                 try
                 {
@@ -90,14 +86,6 @@ namespace DBRandomizer
                 catch
                 {
                 }
-
-                if (indexes.Where(c => c.Value == maxIndexes[c.Key]).Count() == indexes.Count) break;
-                if (DataBaseClient.DBInfo[TableName].Where(c => c.U).Where(c => indexes[c.Name] == maxIndexes[c.Name]).Count() > 0) break;
-
-                indexes[indexes.Where(c => c.Value < indexes[c.Key]).First().Key]++;
-
-                foreach (var collumn in DataBaseClient.DBInfo[TableName].Where(c => c.U))
-                    indexes[collumn.Name]++;
             }
 
             return true;

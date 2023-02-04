@@ -1,12 +1,65 @@
-﻿<Window x:Class="DBRandomizer.WPF.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DBRandomizer.WPF"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+﻿<Window
+    x:Class="DBRandomizer.WPF.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:con="clr-namespace:DBRandomizer.Controls"
+    xmlns:conv="clr-namespace:DBRandomizer.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:local="clr-namespace:DBRandomizer.WPF"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vms="clr-namespace:DBRandomizer.ViewModels"
+    Title="MainWindow"
+    Width="400"
+    Height="450"
+    mc:Ignorable="d">
 
+    <Window.Resources>
+        <vms:MainViewModel x:Key="vm" />
+        <DataTemplate x:Key="tableHeader">
+            <TextBlock Text="{Binding Name, Mode=OneWay}" />
+        </DataTemplate>
+        <DataTemplate x:Key="tableContent">
+            <con:DataSet />
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid DataContext="{Binding Source={StaticResource vm}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button
+                Margin="4,4,2,4"
+                Command="{Binding OpenDataBase}"
+                Content="Open DataBase" />
+
+            <TextBox
+                Grid.Column="1"
+                Margin="2,4"
+                IsReadOnly="True"
+                Text="{Binding FileName, Mode=OneWay}" />
+
+            <Button
+                Grid.Column="2"
+                Margin="2,4,4,4"
+                Command="{Binding Refresh}"
+                Content="Refresh" />
+
+        </Grid>
+
+        <TabControl
+            Grid.Row="1"
+            ContentTemplate="{Binding Source={StaticResource tableContent}}"
+            ItemTemplate="{Binding Source={StaticResource tableHeader}}"
+            ItemsSource="{Binding Tables}" />
     </Grid>
 </Window>

@@ -7,7 +7,7 @@ namespace DBRandomizer
 {
     public class DataBaseClient : IDisposable
     {
-        private readonly string connectionStr;
+        public readonly string connectionStr;
         private Dictionary<string, List<CollumnInfo>> dbInfo = null;
 
 
@@ -85,6 +85,8 @@ namespace DBRandomizer
 
             return dbInfo = tables;
         }
+
+        public void Refresh() => GetInfo();
 
         public void Dispose() { }
     }
